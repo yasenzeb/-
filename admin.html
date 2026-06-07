@@ -33,7 +33,6 @@
 
 <!-- Admin Panel -->
 <div x-show="loggedIn" class="min-h-screen">
-  <!-- Top Bar -->
   <div class="bg-black text-white px-6 py-4 flex items-center justify-between">
     <div class="flex items-center gap-3">
       <span class="text-green-400 font-black text-xl">M</span>
@@ -45,7 +44,6 @@
     </div>
   </div>
 
-  <!-- Stats -->
   <div class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-2 md:grid-cols-4 gap-4">
     <div class="bg-white rounded-2xl p-5 text-center shadow-sm">
       <div class="text-4xl font-black text-green-600" x-text="products.length"></div>
@@ -65,7 +63,6 @@
     </div>
   </div>
 
-  <!-- Tabs -->
   <div class="max-w-7xl mx-auto px-4">
     <div class="flex gap-2 mb-6 bg-white rounded-2xl p-2 shadow-sm w-fit">
       <button @click="tab='products'" :class="tab==='products'?'tab-active':''" class="px-6 py-2 rounded-xl font-bold text-sm transition">
@@ -78,7 +75,6 @@
 
     <!-- PRODUCTS TAB -->
     <div x-show="tab==='products'">
-      <!-- Add/Edit Form -->
       <div class="bg-white rounded-2xl p-6 shadow-sm mb-6">
         <h2 class="font-black text-xl mb-5" x-text="editId ? 'تعديل المنتج' : 'إضافة منتج جديد'"></h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -120,7 +116,6 @@
           </div>
         </div>
 
-        <!-- Upload Image -->
         <div class="mt-4">
           <label class="text-sm font-bold mb-1 block">أو ارفع صورة</label>
           <div class="flex items-center gap-3">
@@ -145,7 +140,6 @@
         </div>
       </div>
 
-      <!-- Products Table -->
       <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
         <div class="p-4 border-b flex items-center justify-between">
           <h3 class="font-black text-lg">المنتجات (<span x-text="products.length"></span>)</h3>
@@ -169,13 +163,9 @@
             <tbody>
               <template x-for="p in filteredProducts" :key="p.id">
                 <tr class="border-t hover:bg-gray-50 transition">
-                  <td class="p-3">
-                    <img :src="p.image_url||'https://placehold.co/50x50/111/22c55e?text=M'" class="w-12 h-12 object-cover rounded-xl"/>
-                  </td>
+                  <td class="p-3"><img :src="p.image_url||'https://placehold.co/50x50/111/22c55e?text=M'" class="w-12 h-12 object-cover rounded-xl"/></td>
                   <td class="p-3 font-bold max-w-xs truncate" x-text="p.name"></td>
-                  <td class="p-3">
-                    <span class="bg-gray-100 px-2 py-1 rounded-full text-xs font-bold" x-text="p.type"></span>
-                  </td>
+                  <td class="p-3"><span class="bg-gray-100 px-2 py-1 rounded-full text-xs font-bold" x-text="p.type"></span></td>
                   <td class="p-3 font-bold text-green-600" x-text="'EGP '+p.price"></td>
                   <td class="p-3">
                     <span x-show="p.discount_value" class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-bold"
@@ -184,12 +174,8 @@
                   </td>
                   <td class="p-3 text-center">
                     <div class="flex gap-2 justify-center">
-                      <button @click="editProduct(p)" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1 rounded-lg text-xs font-bold transition">
-                        <i class="fas fa-edit"></i>
-                      </button>
-                      <button @click="deleteProduct(p.id)" class="bg-red-50 text-red-500 hover:bg-red-100 px-3 py-1 rounded-lg text-xs font-bold transition">
-                        <i class="fas fa-trash"></i>
-                      </button>
+                      <button @click="editProduct(p)" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1 rounded-lg text-xs font-bold transition"><i class="fas fa-edit"></i></button>
+                      <button @click="deleteProduct(p.id)" class="bg-red-50 text-red-500 hover:bg-red-100 px-3 py-1 rounded-lg text-xs font-bold transition"><i class="fas fa-trash"></i></button>
                     </div>
                   </td>
                 </tr>
@@ -243,8 +229,7 @@
         </div>
       </div>
     </div>
-
-  </div><!-- end max-w -->
+  </div>
 
   <div class="py-8 text-center text-gray-400 text-sm">MONSTERS Admin Panel © 2025</div>
 </div>
@@ -256,7 +241,7 @@
   x-text="toast.msg"></div>
 
 <script>
-const API = 'https://your-vercel-app.vercel.app'; // ← ضع رابط Vercel هنا
+const API = '';
 
 function adminPanel() {
   return {
@@ -289,7 +274,9 @@ function adminPanel() {
       this.loadingProds = true;
       try {
         const r = await fetch(`${API}/api/products`);
-        this.products = await r.json();
+        if (!r.ok) throw new Error();
+        const d = await r.json();
+        this.products = Array.isArray(d) ? d : (d.products || []);
       } catch { this.showToast('❌ خطأ في جلب المنتجات', false); }
       this.loadingProds = false;
     },
@@ -297,7 +284,9 @@ function adminPanel() {
     async fetchCategories() {
       try {
         const r = await fetch(`${API}/api/categories`);
-        this.categories = await r.json();
+        if (!r.ok) throw new Error();
+        const d = await r.json();
+        this.categories = Array.isArray(d) ? d : (d.categories || []);
       } catch {}
     },
 
@@ -311,14 +300,20 @@ function adminPanel() {
       if (!file) return;
       this.uploading = true;
       try {
-        const fd = new FormData();
-        fd.append('file', file);
-        const r = await fetch(`${API}/api/upload`, { method:'POST', body:fd });
-        const data = await r.json();
-        if (data.url) { this.pForm.image_url = data.url; this.showToast('✅ تم رفع الصورة!'); }
-        else throw new Error();
-      } catch { this.showToast('❌ فشل رفع الصورة', false); }
-      this.uploading = false;
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+          const r = await fetch(`${API}/api/upload`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: ev.target.result, fileName: file.name })
+          });
+          const data = await r.json();
+          if (data.url) { this.pForm.image_url = data.url; this.showToast('✅ تم رفع الصورة!'); }
+          else throw new Error();
+          this.uploading = false;
+        };
+        reader.readAsDataURL(file);
+      } catch { this.showToast('❌ فشل رفع الصورة', false); this.uploading = false; }
     },
 
     async saveProduct() {
@@ -330,8 +325,9 @@ function adminPanel() {
         const r = await fetch(url, { method, headers:{'Content-Type':'application/json'}, body:JSON.stringify(this.pForm) });
         if (!r.ok) throw new Error();
         await this.fetchProducts();
+        const msg = this.editId ? '✅ تم التعديل!' : '✅ تمت الإضافة!';
         this.cancelEdit();
-        this.showToast(this.editId ? '✅ تم التعديل!' : '✅ تمت الإضافة!');
+        this.showToast(msg);
       } catch { this.showToast('❌ حدث خطأ', false); }
       this.saving = false;
     },
@@ -350,7 +346,8 @@ function adminPanel() {
     async deleteProduct(id) {
       if (!confirm('متأكد من الحذف؟')) return;
       try {
-        await fetch(`${API}/api/products/${id}`, { method:'DELETE' });
+        const r = await fetch(`${API}/api/products/${id}`, { method:'DELETE' });
+        if (!r.ok) throw new Error();
         this.products = this.products.filter(p=>p.id!==id);
         this.showToast('🗑️ تم الحذف');
       } catch { this.showToast('❌ فشل الحذف', false); }
@@ -370,7 +367,8 @@ function adminPanel() {
     async deleteCategory(id) {
       if (!confirm('متأكد من حذف القسم؟')) return;
       try {
-        await fetch(`${API}/api/categories/${id}`, { method:'DELETE' });
+        const r = await fetch(`${API}/api/categories/${id}`, { method:'DELETE' });
+        if (!r.ok) throw new Error();
         this.categories = this.categories.filter(c=>c.id!==id);
         this.showToast('🗑️ تم حذف القسم');
       } catch { this.showToast('❌ فشل الحذف', false); }
