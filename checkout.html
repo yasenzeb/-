@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MONSTERS - إتمام الطلب</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<style>* { font-family:'Cairo',sans-serif; }</style>
+</head>
+<body class="bg-gray-50 text-black" x-data="checkoutPage()" x-init="init()">
+
+<nav class="bg-white border-b shadow-sm sticky top-0 z-50">
+  <div class="max-w-5xl mx-auto px-4 flex items-center justify-between h-16">
+    <a href="index.html" class="bg-black rounded-lg px-3 py-1 flex items-center gap-1">
+      <span class="text-green-400 font-black text-xl">M</span>
+      <span class="text-white font-black text-lg tracking-widest">ONSTERS</span>
+    </a>
+    <div class="flex items-center gap-2 text-sm text-gray-500 font-bold">
+      <span class="text-green-500">السلة</span> <i class="fas fa-chevron-left text-xs"></i>
+      <span class="text-black">الطلب</span> <i class="fas fa-chevron-left text-xs"></i>
+      <span>التأكيد</span>
+    </div>
+  </div>
+</nav>
+
+<div class="max-w-5xl mx-auto px-4 py-10">
+  <h1 class="text-3xl font-black mb-8"><i class="fas fa-map-marker-alt text-green-500 ml-2"></i>بيانات التوصيل</h1>
+
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+    <!-- Form -->
+    <div class="lg:col-span-3 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+      <!-- Name -->
+      <div class="mb-5">
+        <label class="font-bold text-sm mb-2 block">الاسم الكامل *</label>
+        <input x-model="form.name" type="text" placeholder="محمد أحمد"
+          class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-green-400 text-sm"/>
+        <p x-show="errors.name" class="text-red-500 text-xs mt-1">الاسم مطلوب</p>
+      </div>
+      <!-- Phone -->
+      <div class="mb-5">
+        <label class="font-bold text-sm mb-2 block">رقم الموبايل *</label>
+        <input x-model="form.phone" type="tel" placeholder="01xxxxxxxxx"
+          class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-green-400 text-sm" dir="ltr"/>
+        <p x-show="errors.phone" class="text-red-500 text-xs mt-1">رقم الهاتف مطلوب</p>
+      </div>
+      <!-- Governorate -->
+      <div class="mb-5">
+        <label class="font-bold text-sm mb-2 block">المحافظة *</label>
+        <select x-model="form.gov" class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-green-400 text-sm bg-white">
+          <option value="">اختر المحافظة</option>
+          <template x-for="g in govs"><option :value="g" x-text="g"></option></template>
+        </select>
+        <p x-show="errors.gov" class="text-red-500 text-xs mt-1">المحافظة مطلوبة</p>
+      </div>
+      <!-- Address -->
+      <div class="mb-5">
+        <label class="font-bold text-sm mb-2 block">العنوان بالتفصيل *</label>
+        <textarea x-model="form.address" rows="3" placeholder="الشارع، الحي، المدينة..."
+          class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-green-400 text-sm resize-none"></textarea>
+        <p x-show="errors.address" class="text-red-500 text-xs mt-1">العنوان مطلوب</p>
+      </div>
+      <!-- Notes -->
+      <div class="mb-6">
+        <label class="font-bold text-sm mb-2 block">ملاحظات (اختياري)</label>
+        <textarea x-model="form.notes" rows="2" placeholder="أي ملاحظات للمندوب..."
+          class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-green-400 text-sm resize-none"></textarea>
+      </div>
+
+      <!-- Payment -->
+      <div class="mb-6">
+        <p class="font-black mb-3">طريقة الدفع:</p>
+        <div class="flex gap-3">
+          <label class="flex-1 border-2 rounded-xl p-3 cursor-pointer flex items-center gap-2 transition"
+            :class="form.payment==='cod' ? 'border-green-500 bg-green-50' : 'border-gray-200'">
+            <input type="radio" x-model="form.payment" value="cod" class="hidden"/>
+            <i class="fas fa-money-bill text-green-500 text-xl"></i>
+            <span class="font-bold text-sm">الدفع عند الاستلام</span>
+          </label>
+          <label class="flex-1 border-2 rounded-xl p-3 cursor-pointer flex items-center gap-2 transition"
+            :class="form.payment==='whatsapp' ? 'border-green-500 bg-green-50' : 'border-gray-200'">
+            <input type="radio" x-model="form.payment" value="whatsapp" class="hidden"/>
+            <i class="fab fa-whatsapp text-green-500 text-xl"></i>
+            <span class="font-bold text-sm">تحويل إلكتروني</span>
+          </label>
+        </div>
+      </div>
+
+      <button @click="submitOrder()"
+        class="w-full bg-green-500 text-black font-black py-4 rounded-2xl hover:bg-green-600 transition text-xl flex items-center justify-center gap-2">
+        <i class="fab fa-whatsapp text-2xl"></i> تأكيد الطلب عبر واتساب
+      </button>
+      <p class="text-center text-xs text-gray-400 mt-3">سيتم إرسال تفاصيل طلبك عبر واتساب لتأكيده</p>
+    </div>
+
+    <!-- Order summary -->
+    <div class="lg:col-span-2">
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 sticky top-24">
+        <h2 class="font-black text-lg mb-4 border-b pb-3">ملخص الطلب</h2>
+        <div class="space-y-3 max-h-72 overflow-y-auto mb-4">
+          <template x-for="item in cart" :key="item._key||item.id">
+            <div class="flex items-center gap-3">
+              <img :src="item.image_url||'https://placehold.co/50x50/111/22c55e?text=M'" class="w-12 h-12 rounded-xl object-cover flex-shrink-0"/>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold truncate" x-text="item.name"></p>
+                <p class="text-xs text-gray-400" x-text="(item.size?'مقاس '+item.size+' ':'')+('× '+(item.qty||1))"></p>
+              </div>
+              <span class="font-black text-sm" x-text="'EGP '+((item.finalPrice||item.price)*(item.qty||1))"></span>
+            </div>
+          </template>
+        </div>
+        <div class="border-t pt-4 space-y-2 text-sm">
+          <div class="flex justify-between"><span class="text-gray-500">المجموع</span><span class="font-bold" x-text="'EGP '+subtotal"></span></div>
+          <div x-show="discount>0" class="flex justify-between text-green-600"><span>خصم</span><span x-text="'- EGP '+discount"></span></div>
+          <div class="flex justify-between"><span class="text-gray-500">الشحن</span><span class="text-green-600 font-bold">مجاني</span></div>
+          <div class="flex justify-between text-lg font-black border-t pt-2">
+            <span>الإجمالي</span>
+            <span class="text-green-600" x-text="'EGP '+(subtotal-discount)"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function checkoutPage() {
+  return {
+    cart: [],
+    discount: 0,
+    form: { name:'', phone:'', gov:'', address:'', notes:'', payment:'cod' },
+    errors: { name:false, phone:false, gov:false, address:false },
+    govs: ['القاهرة','الجيزة','الإسكندرية','الدقهلية','البحر الأحمر','البحيرة','الفيوم','الغربية','الإسماعيلية','المنوفية','المنيا','القليوبية','الوادي الجديد','السويس','أسوان','أسيوط','بني سويف','بورسعيد','دمياط','الشرقية','جنوب سيناء','كفر الشيخ','مطروح','الأقصر','قنا','شمال سيناء','سوهاج'],
+
+    init() {
+      try { this.cart = JSON.parse(localStorage.getItem('monsters_cart')||'[]'); } catch {}
+      this.discount = parseInt(localStorage.getItem('monsters_discount')||'0');
+    },
+
+    get subtotal() {
+      return this.cart.reduce((s,i)=>s+(i.finalPrice||i.price)*(i.qty||1),0);
+    },
+
+    validate() {
+      this.errors.name = !this.form.name.trim();
+      this.errors.phone = !this.form.phone.trim();
+      this.errors.gov = !this.form.gov;
+      this.errors.address = !this.form.address.trim();
+      return !Object.values(this.errors).some(Boolean);
+    },
+
+    submitOrder() {
+      if (!this.validate()) return;
+      const items = this.cart.map(i=>`• ${i.name} (مقاس: ${i.size||'-'}, لون: ${i.color||'-'}) × ${i.qty||1} = EGP ${(i.finalPrice||i.price)*(i.qty||1)}`).join('\n');
+      const total = this.subtotal - this.discount;
+      const msg = `🛒 *طلب جديد من MONSTERS*\n\n👤 الاسم: ${this.form.name}\n📱 الموبايل: ${this.form.phone}\n📍 المحافظة: ${this.form.gov}\n🏠 العنوان: ${this.form.address}\n💳 الدفع: ${this.form.payment==='cod'?'عند الاستلام':'تحويل إلكتروني'}\n${this.form.notes?'📝 ملاحظات: '+this.form.notes+'\n':''}\n📦 *المنتجات:*\n${items}\n\n💰 الإجمالي: EGP ${total}\n${this.discount?'🎁 خصم: EGP '+this.discount+'\n':''}\n✅ طلب عبر موقع MONSTERS Store`;
+      const url = `https://wa.me/201050805608?text=${encodeURIComponent(msg)}`;
+      localStorage.removeItem('monsters_cart');
+      localStorage.removeItem('monsters_discount');
+      localStorage.setItem('monsters_last_order', JSON.stringify({...this.form, total, items:this.cart}));
+      window.location.href = url;
+    }
+  }
+}
+</script>
+</body>
+</html>

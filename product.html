@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MONSTERS - تفاصيل المنتج</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<style>* { font-family:'Cairo',sans-serif; } ::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-thumb{background:#22c55e;border-radius:3px}</style>
+</head>
+<body class="bg-white text-black" x-data="productPage()" x-init="init()">
+
+<!-- NAVBAR -->
+<nav class="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+    <a href="index.html" class="flex items-center gap-2">
+      <div class="bg-black rounded-lg px-3 py-1 flex items-center gap-1">
+        <span class="text-green-400 font-black text-xl">M</span>
+        <span class="text-white font-black text-lg tracking-widest">ONSTERS</span>
+      </div>
+    </a>
+    <div class="flex items-center gap-4">
+      <a href="index.html" class="text-sm font-bold text-gray-600 hover:text-green-500"><i class="fas fa-home ml-1"></i>الرئيسية</a>
+      <a href="cart.html" class="relative">
+        <i class="fas fa-shopping-cart text-xl text-gray-700 hover:text-green-500 transition"></i>
+        <span x-show="cartCount>0" x-text="cartCount" class="absolute -top-2 -left-2 bg-green-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold"></span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- BREADCRUMB -->
+<div class="max-w-7xl mx-auto px-4 py-4 text-sm text-gray-400">
+  <a href="index.html" class="hover:text-green-500">الرئيسية</a>
+  <span class="mx-2">/</span>
+  <span class="text-black font-bold" x-text="product.name || 'المنتج'"></span>
+</div>
+
+<!-- PRODUCT DETAIL -->
+<section class="max-w-7xl mx-auto px-4 pb-16">
+  <template x-if="product.id">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+    <!-- Image -->
+    <div class="relative rounded-3xl overflow-hidden bg-gray-50 border border-gray-100">
+      <img :src="product.image_url || 'https://placehold.co/600x500/111/22c55e?text=MONSTERS'"
+           :alt="product.name" class="w-full object-cover" style="min-height:350px"/>
+      <template x-if="product.discount_type && product.discount_value">
+        <span class="absolute top-4 right-4 bg-green-500 text-black font-black px-4 py-2 rounded-full text-lg"
+          x-text="product.discount_type==='percent' ? '-'+product.discount_value+'%' : 'خصم'"></span>
+      </template>
+    </div>
+
+    <!-- Info -->
+    <div>
+      <div class="inline-block bg-gray-100 text-gray-600 text-xs font-bold px-3 py-1 rounded-full mb-3" x-text="getCatName()"></div>
+      <h1 class="text-3xl font-black mb-4" x-text="product.name"></h1>
+
+      <!-- Price -->
+      <div class="flex items-center gap-4 mb-6">
+        <span class="text-4xl font-black text-green-600" x-text="'EGP '+calcPrice()"></span>
+        <template x-if="product.discount_value">
+          <div>
+            <span class="text-gray-400 line-through text-xl" x-text="'EGP '+product.price"></span>
+            <span class="block text-green-600 text-sm font-bold" x-text="'وفرت EGP '+(product.price - calcPrice())"></span>
+          </div>
+        </template>
+      </div>
+
+      <!-- Size -->
+      <div class="mb-6">
+        <p class="font-black mb-3">المقاس:</p>
+        <div class="flex gap-2 flex-wrap">
+          <template x-for="s in sizes">
+            <button @click="selectedSize=s"
+              :class="selectedSize===s ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-300'"
+              class="w-12 h-12 rounded-xl border-2 font-bold hover:border-black transition text-sm" x-text="s"></button>
+          </template>
+        </div>
+        <p x-show="sizeError" class="text-red-500 text-sm mt-2 font-bold">⚠️ اختار المقاس الأول</p>
+      </div>
+
+      <!-- Color -->
+      <div class="mb-6">
+        <p class="font-black mb-3">اللون:</p>
+        <div class="flex gap-3 flex-wrap">
+          <template x-for="c in colors">
+            <button @click="selectedColor=c.name"
+              :style="'background:'+c.hex"
+              :class="selectedColor===c.name ? 'ring-4 ring-green-400 ring-offset-2 scale-110' : ''"
+              class="w-8 h-8 rounded-full border border-gray-200 transition-all" :title="c.name"></button>
+          </template>
+        </div>
+        <p x-show="selectedColor" class="text-sm text-gray-500 mt-2" x-text="'اللون المختار: '+selectedColor"></p>
+      </div>
+
+      <!-- Qty -->
+      <div class="mb-6">
+        <p class="font-black mb-3">الكمية:</p>
+        <div class="flex items-center gap-3">
+          <button @click="qty=Math.max(1,qty-1)" class="w-10 h-10 bg-gray-100 rounded-xl font-black text-xl hover:bg-gray-200 transition">−</button>
+          <span class="w-10 text-center font-black text-lg" x-text="qty"></span>
+          <button @click="qty++" class="w-10 h-10 bg-gray-100 rounded-xl font-black text-xl hover:bg-gray-200 transition">+</button>
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="bg-gray-50 rounded-2xl p-4 mb-6">
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600 font-bold">الإجمالي:</span>
+          <span class="text-2xl font-black text-green-600" x-text="'EGP '+(calcPrice()*qty)"></span>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex gap-3 flex-wrap">
+        <button @click="addToCart()"
+          class="flex-1 bg-black text-white font-black py-4 rounded-2xl hover:bg-green-500 hover:text-black transition text-lg flex items-center justify-center gap-2">
+          <i class="fas fa-cart-plus"></i> أضف للسلة
+        </button>
+        <button @click="buyNow()"
+          class="flex-1 bg-green-500 text-black font-black py-4 rounded-2xl hover:bg-green-600 transition text-lg flex items-center justify-center gap-2">
+          <i class="fas fa-bolt"></i> اشتري الآن
+        </button>
+      </div>
+
+      <!-- Trust badges -->
+      <div class="flex gap-4 mt-6 text-xs text-gray-500 flex-wrap">
+        <span><i class="fas fa-truck text-green-500 ml-1"></i>شحن سريع</span>
+        <span><i class="fas fa-shield-alt text-green-500 ml-1"></i>جودة مضمونة</span>
+        <span><i class="fas fa-undo text-green-500 ml-1"></i>استبدال 14 يوم</span>
+        <span><i class="fas fa-lock text-green-500 ml-1"></i>دفع آمن</span>
+      </div>
+    </div>
+  </div>
+  </template>
+
+  <template x-if="!product.id">
+    <div class="text-center py-24 text-gray-400">
+      <i class="fas fa-box-open text-6xl mb-4 block text-gray-200"></i>
+      <p class="text-xl font-bold">المنتج غير موجود</p>
+      <a href="index.html" class="mt-4 inline-block bg-black text-white px-6 py-3 rounded-full font-bold hover:bg-green-500 hover:text-black transition">العودة للمتجر</a>
+    </div>
+  </template>
+</section>
+
+<!-- TOAST -->
+<div x-show="toast" x-transition class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-black font-black px-6 py-3 rounded-full shadow-xl z-50 text-sm">
+  ✅ تمت الإضافة للسلة!
+</div>
+
+<script>
+function productPage() {
+  return {
+    product: {},
+    qty: 1,
+    selectedSize: '',
+    selectedColor: '',
+    sizeError: false,
+    toast: false,
+    cartCount: 0,
+    sizes: [38,39,40,41,42,43,44,45],
+    colors: [
+      {name:'أسود',hex:'#000'},
+      {name:'أبيض',hex:'#fff'},
+      {name:'أخضر',hex:'#22c55e'},
+      {name:'رمادي',hex:'#9ca3af'},
+      {name:'بيج',hex:'#d2b48c'},
+      {name:'كحلي',hex:'#1e3a5f'},
+    ],
+
+    init() {
+      try { this.product = JSON.parse(localStorage.getItem('monsters_product') || '{}'); } catch {}
+      this.cartCount = this.getCart().length;
+    },
+
+    calcPrice() {
+      const p = this.product;
+      if (!p.discount_value) return p.price;
+      if (p.discount_type === 'percent') return Math.round(p.price*(1-p.discount_value/100));
+      return Math.max(0, p.price - p.discount_value);
+    },
+
+    getCatName() {
+      const map = {sneakers:'كوتشيات',slippers:'سليبرز',sports:'أحذية رياضية',sandals:'صنادل'};
+      return map[this.product.type] || 'أحذية';
+    },
+
+    getCart() {
+      try { return JSON.parse(localStorage.getItem('monsters_cart')||'[]'); } catch { return []; }
+    },
+
+    addToCart() {
+      if (!this.selectedSize) { this.sizeError=true; return; }
+      this.sizeError = false;
+      const cart = this.getCart();
+      const key = this.product.id+'_'+this.selectedSize+'_'+this.selectedColor;
+      const idx = cart.findIndex(i=>i._key===key);
+      const item = {...this.product, qty:this.qty, size:this.selectedSize, color:this.selectedColor, _key:key, finalPrice:this.calcPrice()};
+      if(idx>-1) cart[idx].qty += this.qty;
+      else cart.push(item);
+      localStorage.setItem('monsters_cart', JSON.stringify(cart));
+      this.cartCount = cart.length;
+      this.toast=true; setTimeout(()=>this.toast=false,2500);
+    },
+
+    buyNow() {
+      this.addToCart();
+      if(this.selectedSize) window.location.href='cart.html';
+    }
+  }
+}
+</script>
+</body>
+</html>

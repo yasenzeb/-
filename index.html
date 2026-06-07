@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>MONSTERS - كوتشيات وأحذية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<style>
+  * { font-family: 'Cairo', sans-serif; box-sizing: border-box; }
+  html, body { overflow-x: hidden; width: 100%; }
+  .hero-bg { background: linear-gradient(135deg, #000 60%, #111 100%); }
+  .card-hover { transition: transform .25s, box-shadow .25s; }
+  @media(hover:hover){ .card-hover:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0,0,0,.12); } }
+  .skeleton { background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%); background-size:200% 100%; animation: shimmer 1.5s infinite; }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  .marquee-wrap { overflow:hidden; }
+  .marquee-inner { display:inline-flex; animation: marquee 22s linear infinite; white-space:nowrap; }
+  @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-thumb{background:#22c55e;border-radius:2px}
+  .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .nav-link { transition: color .2s; }
+  .nav-link:hover { color:#22c55e; }
+  .img-slide { transition: transform .5s ease; }
+  .img-slide:hover { transform: scale(1.07); }
+  @media(max-width:640px){
+    .hero-title { font-size: 2.4rem !important; line-height:1.15; }
+    .hero-sub { font-size:1rem !important; }
+    .product-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+    .cat-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+  }
+</style>
+</head>
+<body class="bg-white text-black" x-data="store()" x-init="init()">
+
+<!-- TOP BAR -->
+<div class="bg-black text-white text-xs py-2 marquee-wrap">
+  <div class="marquee-inner">
+    <span class="px-4">🚚 شحن لجميع المحافظات</span>
+    <span class="px-4 text-green-400">|</span>
+    <span class="px-4">🎉 خصم 15% على أول طلب كود: <b class="text-green-400">MONSTERS15</b></span>
+    <span class="px-4 text-green-400">|</span>
+    <span class="px-4">✅ جودة مضمونة 100%</span>
+    <span class="px-4 text-green-400">|</span>
+    <span class="px-4">📞 دعم العملاء 24/7</span>
+    <span class="px-4 text-green-400">|</span>
+    <span class="px-4">🚚 شحن لجميع المحافظات</span>
+    <span class="px-4 text-green-400">|</span>
+    <span class="px-4">🎉 خصم 15% على أول طلب كود: <b class="text-green-400">MONSTERS15</b></span>
+    <span class="px-4 text-green-400">|</span>
+    <span class="px-4">✅ جودة مضمونة 100%</span>
+    <span class="px-4 text-green-400">|</span>
+    <span class="px-4">📞 دعم العملاء 24/7</span>
+    <span class="px-4 text-green-400">|</span>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-14 md:h-16">
+    <a href="index.html" class="flex items-center">
+      <div class="bg-black rounded-lg px-2 py-1 md:px-3 flex items-center gap-0.5">
+        <span class="text-white font-black text-base md:text-lg tracking-widest">ONSTERS</span>
+        <span class="text-green-400 font-black text-lg md:text-xl">M</span>
+      </div>
+    </a>
+    <div class="hidden md:flex items-center gap-5 text-sm font-bold">
+      <a href="index.html" class="nav-link text-green-500">الرئيسية</a>
+      <a href="#products" class="nav-link text-gray-700">المنتجات</a>
+      <a href="#categories" class="nav-link text-gray-700">الأقسام</a>
+      <a href="#about" class="nav-link text-gray-700">من نحن</a>
+      <a href="#contact" class="nav-link text-gray-700">تواصل معنا</a>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="cart.html" class="relative p-1">
+        <i class="fas fa-shopping-cart text-lg md:text-xl text-gray-700 hover:text-green-500 transition"></i>
+        <span x-show="cartCount>0" x-text="cartCount"
+          class="absolute -top-1 -left-1 bg-green-500 text-white text-xs w-4 h-4 md:w-5 md:h-5 rounded-full flex items-center justify-center font-bold leading-none"></span>
+      </a>
+      <button @click="mobileMenu=!mobileMenu" class="md:hidden p-1 text-gray-700">
+        <i :class="mobileMenu ? 'fa-times' : 'fa-bars'" class="fas text-xl"></i>
+      </button>
+    </div>
+  </div>
+  <!-- Mobile Menu -->
+  <div x-show="mobileMenu" x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
+    class="md:hidden bg-white border-t px-5 py-4 flex flex-col gap-4 text-sm font-bold shadow-lg">
+    <a href="index.html" class="text-green-500 flex items-center gap-2"><i class="fas fa-home w-5"></i>الرئيسية</a>
+    <a href="#products" @click="mobileMenu=false" class="text-gray-700 flex items-center gap-2"><i class="fas fa-box w-5"></i>المنتجات</a>
+    <a href="#categories" @click="mobileMenu=false" class="text-gray-700 flex items-center gap-2"><i class="fas fa-tags w-5"></i>الأقسام</a>
+    <a href="#about" @click="mobileMenu=false" class="text-gray-700 flex items-center gap-2"><i class="fas fa-info-circle w-5"></i>من نحن</a>
+    <a href="#contact" @click="mobileMenu=false" class="text-gray-700 flex items-center gap-2"><i class="fas fa-phone w-5"></i>تواصل معنا</a>
+    <a href="cart.html" class="bg-black text-white font-black py-3 rounded-xl text-center flex items-center justify-center gap-2">
+      <i class="fas fa-shopping-cart"></i> السلة
+      <span x-show="cartCount>0" class="bg-green-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center" x-text="cartCount"></span>
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero-bg text-white relative overflow-hidden">
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute top-0 right-0 w-72 h-72 md:w-96 md:h-96 bg-green-500 opacity-10 rounded-full blur-3xl transform translate-x-1/3 -translate-y-1/3"></div>
+    <div class="absolute bottom-0 left-0 w-48 h-48 bg-green-400 opacity-10 rounded-full blur-2xl transform -translate-x-1/4 translate-y-1/4"></div>
+  </div>
+  <div class="max-w-7xl mx-auto px-4 py-10 md:py-20 flex flex-col md:flex-row items-center gap-8 relative z-10">
+    <div class="flex-1 text-center md:text-right w-full">
+      <div class="inline-block bg-green-500 text-black text-xs font-black px-3 py-1 rounded-full mb-4">🔥 كولكشن جديد</div>
+      <h1 class="hero-title font-black leading-tight mb-3 text-5xl md:text-7xl">
+        MONSTERS<br><span class="text-green-400 text-2xl md:text-4xl">أحذية بتفرق</span>
+      </h1>
+      <p class="hero-sub text-gray-300 mb-7 max-w-md mx-auto md:mx-0 text-base md:text-lg">
+        كوتشيات وسليبرز وأحذية رياضية بأفضل الخامات. توصيل سريع لجميع المحافظات.
+      </p>
+      <div class="flex gap-3 justify-center md:justify-start flex-wrap">
+        <a href="#products" class="bg-green-500 hover:bg-green-600 text-black font-black px-7 py-3 rounded-full transition text-base md:text-lg">تسوق الآن 🛒</a>
+        <a href="#categories" class="border-2 border-white text-white hover:bg-white hover:text-black font-bold px-7 py-3 rounded-full transition text-base">الأقسام</a>
+      </div>
+      <div class="flex items-center gap-4 mt-7 text-xs text-gray-400 justify-center md:justify-start flex-wrap">
+        <span><i class="fas fa-truck text-green-400 ml-1"></i>شحن سريع</span>
+        <span><i class="fas fa-shield-alt text-green-400 ml-1"></i>جودة مضمونة</span>
+        <span><i class="fas fa-undo text-green-400 ml-1"></i>استبدال سهل</span>
+      </div>
+    </div>
+    <div class="flex-shrink-0 flex justify-center">
+      <div class="relative">
+        <div class="w-48 h-48 md:w-80 md:h-80 bg-green-500 rounded-full opacity-15 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 blur-2xl"></div>
+        <div class="relative z-10 text-center">
+          <img src="logo.jpeg" alt="MONSTERS Logo"
+            class="w-44 h-44 md:w-72 md:h-72 object-contain drop-shadow-2xl mx-auto rounded-3xl"/>
+          <div class="bg-green-500 text-black font-black px-5 py-2 rounded-full text-sm md:text-base mt-3 inline-block">#1 في مصر</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES BAR -->
+<section class="bg-black text-white py-4 md:py-6">
+  <div class="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 text-center">
+    <div class="flex flex-col items-center gap-1 md:gap-2 py-2">
+      <i class="fas fa-truck text-green-400 text-xl md:text-2xl"></i>
+      <span class="font-bold text-sm">شحن سريع</span>
+      <span class="text-gray-400 text-xs hidden md:block">لجميع المحافظات</span>
+    </div>
+    <div class="flex flex-col items-center gap-1 md:gap-2 py-2">
+      <i class="fas fa-lock text-green-400 text-xl md:text-2xl"></i>
+      <span class="font-bold text-sm">دفع آمن</span>
+      <span class="text-gray-400 text-xs hidden md:block">طرق دفع متعددة</span>
+    </div>
+    <div class="flex flex-col items-center gap-1 md:gap-2 py-2">
+      <i class="fas fa-star text-green-400 text-xl md:text-2xl"></i>
+      <span class="font-bold text-sm">خامات فاخرة</span>
+      <span class="text-gray-400 text-xs hidden md:block">جودة عالية مضمونة</span>
+    </div>
+    <div class="flex flex-col items-center gap-1 md:gap-2 py-2">
+      <i class="fas fa-undo text-green-400 text-xl md:text-2xl"></i>
+      <span class="font-bold text-sm">استبدال</span>
+      <span class="text-gray-400 text-xs hidden md:block">خلال 14 يوم</span>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section id="categories" class="py-10 md:py-16 px-4 max-w-7xl mx-auto">
+  <div class="text-center mb-8">
+    <h2 class="text-2xl md:text-3xl font-black">— تسوق حسب القسم —</h2>
+    <div class="w-10 h-1 bg-green-500 mx-auto mt-3 rounded"></div>
+  </div>
+  <div x-show="loadingCats" class="cat-grid grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+    <template x-for="i in 4"><div class="skeleton rounded-2xl h-40 md:h-48"></div></template>
+  </div>
+  <div x-show="!loadingCats" class="cat-grid grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+    <template x-for="cat in categories" :key="cat.id">
+      <div class="card-hover cursor-pointer bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 hover:border-green-400 group active:scale-95 transition-transform"
+           @click="filterByCategory(cat.slug)">
+        <div class="h-32 md:h-40 bg-gradient-to-br from-black to-gray-800 flex items-center justify-center text-5xl md:text-6xl group-hover:scale-110 transition-transform duration-300">
+          <span x-text="getCatEmoji(cat.slug)"></span>
+        </div>
+        <div class="p-3 md:p-4 text-center">
+          <h3 class="font-black text-base md:text-lg" x-text="cat.name"></h3>
+          <button class="mt-2 bg-black text-white text-xs px-4 py-1.5 rounded-full hover:bg-green-500 transition font-bold">
+            تسوق الآن <i class="fas fa-arrow-left mr-1 text-xs"></i>
+          </button>
+        </div>
+      </div>
+    </template>
+    <template x-if="categories.length===0 && !loadingCats">
+      <div class="col-span-2 md:col-span-4 text-center text-gray-400 py-10">لا توجد أقسام حالياً</div>
+    </template>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section id="products" class="py-10 md:py-16 px-4 bg-gray-50">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex items-start md:items-center justify-between mb-6 flex-col md:flex-row gap-4">
+      <div>
+        <h2 class="text-2xl md:text-3xl font-black">— المنتجات —</h2>
+        <div class="w-10 h-1 bg-green-500 mt-2 rounded"></div>
+      </div>
+      <!-- Filter -->
+      <div class="flex gap-2 flex-wrap">
+        <button @click="activeFilter=''"
+          :class="activeFilter==='' ? 'bg-black text-white' : 'bg-white text-black border border-gray-300'"
+          class="px-3 py-1.5 rounded-full text-xs md:text-sm font-bold hover:bg-black hover:text-white transition">الكل</button>
+        <template x-for="cat in categories" :key="cat.id">
+          <button @click="activeFilter=cat.slug"
+            :class="activeFilter===cat.slug ? 'bg-green-500 text-black' : 'bg-white text-black border border-gray-300'"
+            class="px-3 py-1.5 rounded-full text-xs md:text-sm font-bold hover:bg-green-500 hover:text-black transition"
+            x-text="cat.name"></button>
+        </template>
+      </div>
+    </div>
+
+    <!-- Skeletons -->
+    <div x-show="loadingProds" class="product-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+      <template x-for="i in 6">
+        <div class="bg-white rounded-2xl overflow-hidden shadow-sm">
+          <div class="skeleton h-44 md:h-52 w-full"></div>
+          <div class="p-3 space-y-2">
+            <div class="skeleton h-3 rounded w-3/4"></div>
+            <div class="skeleton h-3 rounded w-1/2"></div>
+            <div class="skeleton h-8 rounded"></div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- Grid -->
+    <div x-show="!loadingProds" class="product-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+      <template x-for="p in filteredProducts" :key="p.id">
+        <div class="card-hover bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:border-green-400 cursor-pointer group active:scale-95 transition-all"
+             @click="goToProduct(p)">
+          <div class="relative overflow-hidden h-44 md:h-52">
+            <img :src="p.image_url || 'https://placehold.co/400x300/111/22c55e?text=👟'"
+                 :alt="p.name" class="img-slide w-full h-full object-cover"/>
+            <template x-if="p.discount_type && p.discount_value">
+              <span class="absolute top-2 right-2 bg-green-500 text-black text-xs font-black px-2 py-0.5 rounded-full"
+                x-text="p.discount_type==='percent' ? '-'+p.discount_value+'%' : 'خصم'"></span>
+            </template>
+            <template x-if="isNew(p)">
+              <span class="absolute top-2 left-2 bg-black text-white text-xs font-bold px-2 py-0.5 rounded-full">جديد</span>
+            </template>
+            <!-- Desktop hover btn -->
+            <button @click.stop="addToCart(p)"
+              class="hidden md:flex absolute bottom-0 left-0 right-0 bg-green-500 text-black font-black py-2 text-sm items-center justify-center gap-1 translate-y-full group-hover:translate-y-0 transition duration-300">
+              <i class="fas fa-cart-plus"></i> أضف للسلة
+            </button>
+          </div>
+          <div class="p-3">
+            <h3 class="font-bold text-xs md:text-sm leading-snug mb-1 line-clamp-2" x-text="p.name"></h3>
+            <div class="flex items-center gap-1.5 flex-wrap mb-2">
+              <span class="font-black text-green-600 text-sm md:text-base" x-text="'EGP '+calcPrice(p)"></span>
+              <template x-if="p.discount_value">
+                <span class="text-gray-400 text-xs line-through" x-text="'EGP '+p.price"></span>
+              </template>
+            </div>
+            <button @click.stop="addToCart(p)"
+              class="w-full bg-black text-white text-xs py-2 rounded-xl hover:bg-green-500 hover:text-black transition font-bold flex items-center justify-center gap-1 active:scale-95">
+              <i class="fas fa-shopping-cart text-xs"></i> أضف للسلة
+            </button>
+          </div>
+        </div>
+      </template>
+      <div x-show="filteredProducts.length===0 && !loadingProds" class="col-span-2 md:col-span-5 text-center py-16 text-gray-400">
+        <i class="fas fa-box-open text-4xl mb-3 block text-gray-200"></i>
+        <p class="font-bold">لا توجد منتجات</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROMO BANNER -->
+<section class="bg-black text-white py-12 md:py-16 px-4 relative overflow-hidden">
+  <div class="absolute top-0 right-0 w-64 h-64 bg-green-500 opacity-10 rounded-full blur-3xl transform translate-x-1/3 -translate-y-1/3 pointer-events-none"></div>
+  <div class="max-w-3xl mx-auto text-center relative z-10">
+    <p class="text-green-400 font-bold text-sm mb-2">عرض خاص للعملاء الجدد</p>
+    <h2 class="text-4xl md:text-6xl font-black mb-3">خصم <span class="text-green-400">15%</span></h2>
+    <p class="text-gray-300 mb-5">على أول طلب باستخدام كود</p>
+    <div class="bg-white text-black font-black text-2xl md:text-3xl px-8 py-3 rounded-2xl inline-block tracking-widest mb-6">MONSTERS15</div>
+    <br/>
+    <a href="#products" class="bg-green-500 hover:bg-green-600 active:bg-green-700 text-black font-black px-8 py-3 rounded-full text-lg transition inline-block">تسوق الآن</a>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="py-12 md:py-16 px-4 max-w-3xl mx-auto text-center">
+  <h2 class="text-2xl md:text-3xl font-black mb-3">— من نحن —</h2>
+  <div class="w-10 h-1 bg-green-500 mx-auto mb-6 rounded"></div>
+  <p class="text-gray-600 leading-relaxed text-sm md:text-base">
+    MONSTERS متجر متخصص في الأحذية العصرية من كوتشيات وسليبرز وأحذية رياضية.
+    بنجيب أجمل التصاميم بأفضل الخامات بأسعار تناسب الجميع. نوصّل لجميع محافظات مصر 🚚
+  </p>
+  <div class="grid grid-cols-3 gap-4 md:gap-8 mt-10">
+    <div><div class="text-3xl md:text-4xl font-black text-green-500">+500</div><div class="text-gray-600 font-bold mt-1 text-xs md:text-sm">عميل سعيد</div></div>
+    <div><div class="text-3xl md:text-4xl font-black text-green-500">27</div><div class="text-gray-600 font-bold mt-1 text-xs md:text-sm">محافظة</div></div>
+    <div><div class="text-3xl md:text-4xl font-black text-green-500">100%</div><div class="text-gray-600 font-bold mt-1 text-xs md:text-sm">جودة مضمونة</div></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contact" class="bg-black text-white pt-10 md:pt-12 pb-6 px-4">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+    <div>
+      <div class="text-2xl md:text-3xl font-black mb-3">M<span class="text-green-400">ONSTERS</span></div>
+      <p class="text-gray-400 text-sm leading-relaxed">أحذية بتفرق. كوتشيات، سليبرز، وأحذية رياضية بأجمل التصاميم.</p>
+    </div>
+    <div>
+      <h3 class="font-black text-base md:text-lg mb-4 text-green-400">روابط سريعة</h3>
+      <div class="flex flex-col gap-2 text-gray-400 text-sm">
+        <a href="#products" class="hover:text-green-400 transition">المنتجات</a>
+        <a href="#categories" class="hover:text-green-400 transition">الأقسام</a>
+        <a href="cart.html" class="hover:text-green-400 transition">السلة</a>
+        <a href="#about" class="hover:text-green-400 transition">من نحن</a>
+      </div>
+    </div>
+    <div>
+      <h3 class="font-black text-base md:text-lg mb-4 text-green-400">تواصل معنا</h3>
+      <div class="flex flex-col gap-3 text-sm">
+        <a href="https://wa.me/201050805608" target="_blank" class="flex items-center gap-3 text-gray-400 hover:text-green-400 transition">
+          <i class="fab fa-whatsapp text-lg text-green-400"></i> واتساب
+        </a>
+        <a href="https://instagram.com/monsters_store0" target="_blank" class="flex items-center gap-3 text-gray-400 hover:text-green-400 transition">
+          <i class="fab fa-instagram text-lg text-pink-400"></i> @monsters_store0
+        </a>
+        <a href="https://facebook.com/share/18ei6aLPim" target="_blank" class="flex items-center gap-3 text-gray-400 hover:text-green-400 transition">
+          <i class="fab fa-facebook text-lg text-blue-400"></i> Facebook
+        </a>
+        <a href="https://tiktok.com/@monsters_store" target="_blank" class="flex items-center gap-3 text-gray-400 hover:text-green-400 transition">
+          <i class="fab fa-tiktok text-lg"></i> @monsters_store
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- Social Icons Row (mobile) -->
+  <div class="flex justify-center gap-5 mb-6 md:hidden">
+    <a href="https://wa.me/201050805608" target="_blank" class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-black"><i class="fab fa-whatsapp text-lg"></i></a>
+    <a href="https://instagram.com/monsters_store0" target="_blank" class="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center text-white"><i class="fab fa-instagram text-lg"></i></a>
+    <a href="https://facebook.com/share/18ei6aLPim" target="_blank" class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white"><i class="fab fa-facebook text-lg"></i></a>
+    <a href="https://tiktok.com/@monsters_store" target="_blank" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-white"><i class="fab fa-tiktok text-lg"></i></a>
+  </div>
+  <div class="border-t border-gray-800 pt-5 text-center text-gray-500 text-xs md:text-sm">
+    © 2025 MONSTERS Store. جميع الحقوق محفوظة.
+  </div>
+</footer>
+
+<!-- BOTTOM NAV (Mobile) -->
+<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 md:hidden z-50 shadow-lg">
+  <div class="flex items-center justify-around py-2">
+    <a href="index.html" class="flex flex-col items-center gap-0.5 text-green-500">
+      <i class="fas fa-home text-lg"></i>
+      <span class="text-xs font-bold">الرئيسية</span>
+    </a>
+    <a href="#categories" class="flex flex-col items-center gap-0.5 text-gray-500">
+      <i class="fas fa-tags text-lg"></i>
+      <span class="text-xs font-bold">الأقسام</span>
+    </a>
+    <a href="#products" class="flex flex-col items-center gap-0.5 text-gray-500">
+      <i class="fas fa-box text-lg"></i>
+      <span class="text-xs font-bold">المنتجات</span>
+    </a>
+    <a href="cart.html" class="flex flex-col items-center gap-0.5 text-gray-500 relative">
+      <i class="fas fa-shopping-cart text-lg"></i>
+      <span class="text-xs font-bold">السلة</span>
+      <span x-show="cartCount>0" x-text="cartCount"
+        class="absolute -top-1 right-1 bg-green-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold leading-none"></span>
+    </a>
+  </div>
+</div>
+<!-- Spacer for bottom nav on mobile -->
+<div class="h-16 md:hidden"></div>
+
+<!-- TOAST -->
+<div x-show="toast" x-transition
+  class="fixed bottom-20 md:bottom-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-black font-black px-5 py-3 rounded-full shadow-xl z-50 text-sm whitespace-nowrap">
+  ✅ تمت الإضافة للسلة!
+</div>
+
+<script>
+const API = 'https://your-vercel-app.vercel.app';
+
+function store() {
+  return {
+    products: [],
+    categories: [],
+    activeFilter: '',
+    loadingProds: true,
+    loadingCats: true,
+    mobileMenu: false,
+    cartCount: 0,
+    toast: false,
+
+    async init() {
+      this.cartCount = this.getCart().length;
+      await Promise.all([this.fetchProducts(), this.fetchCategories()]);
+    },
+
+    async fetchProducts() {
+      try {
+        const r = await fetch(`${API}/api/products`);
+        if (!r.ok) throw new Error();
+        this.products = await r.json();
+      } catch { this.products = []; }
+      this.loadingProds = false;
+    },
+
+    async fetchCategories() {
+      try {
+        const r = await fetch(`${API}/api/categories`);
+        if (!r.ok) throw new Error();
+        this.categories = await r.json();
+      } catch { this.categories = []; }
+      this.loadingCats = false;
+    },
+
+    get filteredProducts() {
+      if (!this.activeFilter) return this.products;
+      return this.products.filter(p => p.type === this.activeFilter);
+    },
+
+    calcPrice(p) {
+      if (!p.discount_value) return p.price;
+      if (p.discount_type === 'percent') return Math.round(p.price * (1 - p.discount_value/100));
+      return Math.max(0, p.price - p.discount_value);
+    },
+
+    isNew(p) {
+      if (!p.created_at) return false;
+      return (Date.now() - new Date(p.created_at)) < 7*24*60*60*1000;
+    },
+
+    getCatEmoji(slug) {
+      const map = { sneakers:'👟', slippers:'🥿', sports:'⚽' };
+      return map[slug] || '👠';
+    },
+
+    filterByCategory(slug) {
+      this.activeFilter = slug;
+      document.getElementById('products').scrollIntoView({ behavior:'smooth' });
+    },
+
+    goToProduct(p) {
+      localStorage.setItem('monsters_product', JSON.stringify(p));
+      window.location.href = 'product.html';
+    },
+
+    getCart() {
+      try { return JSON.parse(localStorage.getItem('monsters_cart') || '[]'); } catch { return []; }
+    },
+
+    addToCart(p) {
+      const cart = this.getCart();
+      const idx = cart.findIndex(i => i.id === p.id);
+      if (idx > -1) cart[idx].qty = (cart[idx].qty||1)+1;
+      else cart.push({...p, qty:1});
+      localStorage.setItem('monsters_cart', JSON.stringify(cart));
+      this.cartCount = cart.length;
+      this.toast = true;
+      setTimeout(() => this.toast = false, 2500);
+    }
+  }
+}
+</script>
+</body>
+</html>
