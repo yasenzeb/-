@@ -3,12 +3,35 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>MONSTERS - تفاصيل المنتج</title>
+<title>KADRY Store - تفاصيل المنتج</title>
+<meta name="description" content="اكتشف أفضل الكوتشيات والأحذية الرياضية في مصر من KADRY Store. جودة عالية، أسعار مناسبة، وشحن سريع لجميع المحافظات."/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://kadry1.com/product.html"/>
+<!-- Open Graph -->
+<meta property="og:type" content="product"/>
+<meta property="og:site_name" content="KADRY Store"/>
+<meta property="og:url" content="https://kadry1.com/product.html"/>
+<meta property="og:title" content="KADRY Store - تفاصيل المنتج"/>
+<meta property="og:description" content="اكتشف أفضل الكوتشيات والأحذية الرياضية في مصر من KADRY Store."/>
+<meta property="og:image" content="https://kadry1.com/logo.jpeg"/>
+<meta property="og:locale" content="ar_EG"/>
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="KADRY Store - تفاصيل المنتج"/>
+<meta name="twitter:description" content="اكتشف أفضل الكوتشيات والأحذية الرياضية في مصر من KADRY Store."/>
+<meta name="twitter:image" content="https://kadry1.com/logo.jpeg"/>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-<style>* { font-family:'Cairo',sans-serif; } ::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-thumb{background:#22c55e;border-radius:3px}</style>
+<style>
+* { font-family:'Cairo',sans-serif; }
+::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-thumb{background:#111111;border-radius:3px}
+.thumb-active { border-color: #000000 !important; }
+.main-img-wrap { transition: opacity .2s; }
+.thumb-img { transition: all .2s; cursor: pointer; }
+.thumb-img:hover { transform: scale(1.05); }
+</style>
 </head>
 <body class="bg-white text-black" x-data="productPage()" x-init="init()">
 
@@ -16,16 +39,13 @@
 <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
   <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
     <a href="index.html" class="flex items-center gap-2">
-      <div class="bg-black rounded-lg px-3 py-1 flex items-center gap-1">
-        <span class="text-green-400 font-black text-xl">M</span>
-        <span class="text-white font-black text-lg tracking-widest">ONSTERS</span>
-      </div>
+      <div class="text-black font-black text-lg tracking-widest">KADRY</div>
     </a>
     <div class="flex items-center gap-4">
-      <a href="index.html" class="text-sm font-bold text-gray-600 hover:text-green-500"><i class="fas fa-home ml-1"></i>الرئيسية</a>
+      <a href="index.html" class="text-sm font-bold text-gray-600 hover:text-black"><i class="fas fa-home ml-1"></i>الرئيسية</a>
       <a href="cart.html" class="relative">
-        <i class="fas fa-shopping-cart text-xl text-gray-700 hover:text-green-500 transition"></i>
-        <span x-show="cartCount>0" x-text="cartCount" class="absolute -top-2 -left-2 bg-green-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold"></span>
+        <i class="fas fa-shopping-cart text-xl text-gray-700 hover:text-black transition"></i>
+        <span x-show="cartCount>0" x-text="cartCount" class="absolute -top-2 -left-2 bg-black text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold"></span>
       </a>
     </div>
   </div>
@@ -33,7 +53,7 @@
 
 <!-- BREADCRUMB -->
 <div class="max-w-7xl mx-auto px-4 py-4 text-sm text-gray-400">
-  <a href="index.html" class="hover:text-green-500">الرئيسية</a>
+  <a href="index.html" class="hover:text-black">الرئيسية</a>
   <span class="mx-2">/</span>
   <span class="text-black font-bold" x-text="product.name || 'المنتج'"></span>
 </div>
@@ -41,15 +61,29 @@
 <!-- PRODUCT DETAIL -->
 <section class="max-w-7xl mx-auto px-4 pb-16">
   <template x-if="product.id">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-    <!-- Image -->
-    <div class="relative rounded-3xl overflow-hidden bg-gray-50 border border-gray-100">
-      <img :src="product.image_url || 'https://placehold.co/600x500/111/22c55e?text=MONSTERS'"
-           :alt="product.name" class="w-full object-cover" style="min-height:350px"/>
-      <template x-if="product.discount_type && product.discount_value">
-        <span class="absolute top-4 right-4 bg-green-500 text-black font-black px-4 py-2 rounded-full text-lg"
-          x-text="product.discount_type==='percent' ? '-'+product.discount_value+'%' : 'خصم'"></span>
-      </template>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+
+    <!-- IMAGE GALLERY -->
+    <div>
+      <!-- Main Image -->
+      <div class="relative rounded-3xl overflow-hidden bg-gray-50 border border-gray-100 mb-3 main-img-wrap" style="min-height:350px">
+        <img :src="activeImage || 'https://placehold.co/600x500/111/000000?text=K'"
+             :alt="product.name" class="w-full object-cover" style="min-height:350px;max-height:480px;object-fit:contain"/>
+        <template x-if="product.discount_type && product.discount_value">
+          <span class="absolute top-4 right-4 bg-black text-white font-black px-4 py-2 rounded-full text-lg"
+            x-text="product.discount_type==='percent' ? '-'+product.discount_value+'%' : 'خصم'"></span>
+        </template>
+      </div>
+      <!-- Thumbnails -->
+      <div x-show="allImages.length > 1" class="flex gap-2 flex-wrap">
+        <template x-for="(img, idx) in allImages" :key="idx">
+          <div @click="activeImage=img"
+               :class="activeImage===img ? 'thumb-active border-2' : 'border border-gray-200'"
+               class="thumb-img w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden bg-gray-50 flex-shrink-0">
+            <img :src="img" :alt="'صورة '+(idx+1)" class="w-full h-full object-cover"/>
+          </div>
+        </template>
+      </div>
     </div>
 
     <!-- Info -->
@@ -59,11 +93,11 @@
 
       <!-- Price -->
       <div class="flex items-center gap-4 mb-6">
-        <span class="text-4xl font-black text-green-600" x-text="'EGP '+calcPrice()"></span>
+        <span class="text-4xl font-black text-black" x-text="'EGP '+calcPrice()"></span>
         <template x-if="product.discount_value">
           <div>
             <span class="text-gray-400 line-through text-xl" x-text="'EGP '+product.price"></span>
-            <span class="block text-green-600 text-sm font-bold" x-text="'وفرت EGP '+(product.price - calcPrice())"></span>
+            <span class="block text-black text-sm font-bold" x-text="'وفرت EGP '+(product.price - calcPrice())"></span>
           </div>
         </template>
       </div>
@@ -73,26 +107,27 @@
         <p class="font-black mb-3">المقاس:</p>
         <div class="flex gap-2 flex-wrap">
           <template x-for="s in sizes">
-            <button @click="selectedSize=s"
-              :class="selectedSize===s ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-300'"
+              <button @click="selectedSize=s; sizeError=false"
+                :class="selectedSize===s ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-300'"
               class="w-12 h-12 rounded-xl border-2 font-bold hover:border-black transition text-sm" x-text="s"></button>
           </template>
         </div>
-        <p x-show="sizeError" class="text-red-500 text-sm mt-2 font-bold">⚠️ اختار المقاس الأول</p>
+        <p x-show="sizeError" class="text-red-500 text-sm mt-2 font-bold">⚠️ يجب اختيار المقاس أولاً</p>
       </div>
 
       <!-- Color -->
-      <div class="mb-6">
+      <div class="mb-6" x-show="colors.length > 0">
         <p class="font-black mb-3">اللون:</p>
         <div class="flex gap-3 flex-wrap">
           <template x-for="c in colors">
-            <button @click="selectedColor=c.name"
+            <button @click="selectedColor=c.name; colorError=false"
               :style="'background:'+c.hex"
-              :class="selectedColor===c.name ? 'ring-4 ring-green-400 ring-offset-2 scale-110' : ''"
+              :class="selectedColor===c.name ? 'ring-4 ring-black ring-offset-2 scale-110' : ''"
               class="w-8 h-8 rounded-full border border-gray-200 transition-all" :title="c.name"></button>
           </template>
         </div>
         <p x-show="selectedColor" class="text-sm text-gray-500 mt-2" x-text="'اللون المختار: '+selectedColor"></p>
+        <p x-show="colorError" class="text-red-500 text-sm mt-2 font-bold">⚠️ يجب اختيار اللون أولاً</p>
       </div>
 
       <!-- Qty -->
@@ -106,31 +141,31 @@
       </div>
 
       <!-- Total -->
-      <div class="bg-gray-50 rounded-2xl p-4 mb-6">
+        <div class="bg-gray-50 rounded-2xl p-4 mb-6">
         <div class="flex justify-between items-center">
           <span class="text-gray-600 font-bold">الإجمالي:</span>
-          <span class="text-2xl font-black text-green-600" x-text="'EGP '+(calcPrice()*qty)"></span>
+          <span class="text-2xl font-black text-black" x-text="'EGP '+(calcPrice()*qty)"></span>
         </div>
       </div>
 
       <!-- Buttons -->
       <div class="flex gap-3 flex-wrap">
         <button @click="addToCart()"
-          class="flex-1 bg-black text-white font-black py-4 rounded-2xl hover:bg-green-500 hover:text-black transition text-lg flex items-center justify-center gap-2">
+          class="flex-1 bg-black text-white font-black py-4 rounded-2xl hover:bg-gray-800 hover:text-white transition text-lg flex items-center justify-center gap-2">
           <i class="fas fa-cart-plus"></i> أضف للسلة
         </button>
         <button @click="buyNow()"
-          class="flex-1 bg-green-500 text-black font-black py-4 rounded-2xl hover:bg-green-600 transition text-lg flex items-center justify-center gap-2">
+          class="flex-1 bg-black text-white font-black py-4 rounded-2xl hover:bg-gray-800 transition text-lg flex items-center justify-center gap-2">
           <i class="fas fa-bolt"></i> اشتري الآن
         </button>
       </div>
 
       <!-- Trust badges -->
-      <div class="flex gap-4 mt-6 text-xs text-gray-500 flex-wrap">
-        <span><i class="fas fa-truck text-green-500 ml-1"></i>شحن سريع</span>
-        <span><i class="fas fa-shield-alt text-green-500 ml-1"></i>جودة مضمونة</span>
-        <span><i class="fas fa-undo text-green-500 ml-1"></i>استبدال 14 يوم</span>
-        <span><i class="fas fa-lock text-green-500 ml-1"></i>دفع آمن</span>
+        <div class="flex gap-4 mt-6 text-xs text-gray-500 flex-wrap">
+        <span><i class="fas fa-truck text-black ml-1"></i>شحن سريع</span>
+        <span><i class="fas fa-shield-alt text-black ml-1"></i>جودة مضمونة</span>
+        <span><i class="fas fa-undo text-black ml-1"></i>استبدال 14 يوم</span>
+        <span><i class="fas fa-lock text-black ml-1"></i>دفع آمن</span>
       </div>
     </div>
   </div>
@@ -140,14 +175,21 @@
     <div class="text-center py-24 text-gray-400">
       <i class="fas fa-box-open text-6xl mb-4 block text-gray-200"></i>
       <p class="text-xl font-bold">المنتج غير موجود</p>
-      <a href="index.html" class="mt-4 inline-block bg-black text-white px-6 py-3 rounded-full font-bold hover:bg-green-500 hover:text-black transition">العودة للمتجر</a>
+      <a href="index.html" class="mt-4 inline-block bg-black text-white px-6 py-3 rounded-full font-bold hover:bg-gray-800 transition">العودة للمتجر</a>
     </div>
   </template>
 </section>
 
+<!-- WHATSAPP FLOATING BUTTON -->
+<a href="https://wa.me/77014738052" target="_blank" rel="noopener noreferrer" aria-label="تواصل معنا عبر واتساب"
+   style="position:fixed;bottom:90px;right:16px;width:54px;height:54px;background:#25d366;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;z-index:999;box-shadow:0 4px 20px rgba(37,211,102,0.45);transition:all 0.15s;text-decoration:none;"
+   onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+  <i class="fab fa-whatsapp"></i>
+</a>
+
 <!-- TOAST -->
-<div x-show="toast" x-transition class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-black font-black px-6 py-3 rounded-full shadow-xl z-50 text-sm">
-  ✅ تمت الإضافة للسلة!
+<div x-show="toast" x-transition class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-black text-white font-black px-6 py-3 rounded-full shadow-xl z-50 text-sm">
+  تمت الإضافة للسلة!
 </div>
 
 <script>
@@ -158,21 +200,91 @@ function productPage() {
     selectedSize: '',
     selectedColor: '',
     sizeError: false,
+    colorError: false,
     toast: false,
     cartCount: 0,
     sizes: [38,39,40,41,42,43,44,45],
-    colors: [
-      {name:'أسود',hex:'#000'},
-      {name:'أبيض',hex:'#fff'},
-      {name:'أخضر',hex:'#22c55e'},
-      {name:'رمادي',hex:'#9ca3af'},
-      {name:'بيج',hex:'#d2b48c'},
-      {name:'كحلي',hex:'#1e3a5f'},
-    ],
+    colors: [],
+    activeImage: '',
+    allImages: [],
 
-    init() {
-      try { this.product = JSON.parse(localStorage.getItem('monsters_product') || '{}'); } catch {}
+    async init() {
       this.cartCount = this.getCart().length;
+
+      // Read id from URL query string
+      const urlId = new URLSearchParams(window.location.search).get('id');
+
+      // Fast-path: show cached data immediately while fetch is in-flight
+      if (urlId) {
+        try {
+          const cached = JSON.parse(localStorage.getItem('kadry_product') || '{}');
+          if (cached && cached.id === urlId) {
+            this._applyProduct(cached);
+          }
+        } catch {}
+      } else {
+        // No id in URL — fall back to localStorage only (legacy deep link)
+        try {
+          const cached = JSON.parse(localStorage.getItem('kadry_product') || '{}');
+          if (cached && cached.id) {
+            this._applyProduct(cached);
+          }
+        } catch {}
+        return; // nothing to fetch without an id
+      }
+
+      // Fetch authoritative data from API
+      try {
+        const resp = await fetch(`/api/products/${encodeURIComponent(urlId)}`);
+        if (resp.status === 404) {
+          this.product = {}; // trigger "not found" state
+          return;
+        }
+        const data = await resp.json();
+        if (data.success && data.product) {
+          this._applyProduct(data.product);
+        } else {
+          this.product = {};
+        }
+      } catch (err) {
+        console.error('[product.html] fetch failed:', err);
+        // Keep cached data if fetch fails — do not clear product
+      }
+    },
+
+    _applyProduct(p) {
+      this.product = p;
+
+      if (Array.isArray(p.sizes) && p.sizes.length)
+        this.sizes = p.sizes;
+      if (Array.isArray(p.colors) && p.colors.length)
+        this.colors = p.colors;
+
+      const gallery = Array.isArray(p.gallery) ? p.gallery.filter(Boolean) : [];
+      const mainImg = p.image_url || null;
+
+      const seen = new Set();
+      const imgs = [];
+      if (mainImg) { imgs.push(mainImg); seen.add(mainImg); }
+      gallery.forEach(u => { if (u && !seen.has(u)) { imgs.push(u); seen.add(u); } });
+
+      this.allImages  = imgs;
+      this.activeImage = imgs[0] || 'https://placehold.co/600x500/111/000000?text=K';
+
+      // Dynamic SEO
+      if (p.name) {
+        const title = `${p.name} | KADRY Store`;
+        const desc  = `اشتري ${p.name} من KADRY Store. شحن سريع لجميع محافظات مصر.`;
+        const img   = p.image_url || 'https://kadry1.com/logo.jpeg';
+        document.title = title;
+        document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
+        document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
+        document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
+        document.querySelector('meta[property="og:image"]')?.setAttribute('content', img);
+        document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', title);
+        document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', desc);
+        document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', img);
+      }
     },
 
     calcPrice() {
@@ -188,26 +300,33 @@ function productPage() {
     },
 
     getCart() {
-      try { return JSON.parse(localStorage.getItem('monsters_cart')||'[]'); } catch { return []; }
+      try { return JSON.parse(localStorage.getItem('kadry_cart')||'[]'); } catch { return []; }
     },
 
     addToCart() {
-      if (!this.selectedSize) { this.sizeError=true; return; }
-      this.sizeError = false;
+      // التحقق من اختيار المقاس واللون
+      this.sizeError = !this.selectedSize;
+      this.colorError = (this.colors.length > 0) ? !this.selectedColor : false;
+
+      if (this.sizeError || this.colorError) return false;
+
       const cart = this.getCart();
       const key = this.product.id+'_'+this.selectedSize+'_'+this.selectedColor;
       const idx = cart.findIndex(i=>i._key===key);
       const item = {...this.product, qty:this.qty, size:this.selectedSize, color:this.selectedColor, _key:key, finalPrice:this.calcPrice()};
+      
       if(idx>-1) cart[idx].qty += this.qty;
       else cart.push(item);
-      localStorage.setItem('monsters_cart', JSON.stringify(cart));
+      
+      localStorage.setItem('kadry_cart', JSON.stringify(cart));
       this.cartCount = cart.length;
       this.toast=true; setTimeout(()=>this.toast=false,2500);
+      return true;
     },
 
     buyNow() {
-      this.addToCart();
-      if(this.selectedSize) window.location.href='cart.html';
+      const success = this.addToCart();
+      if(success) window.location.href='cart.html';
     }
   }
 }

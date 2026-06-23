@@ -3,121 +3,191 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>MONSTERS - إتمام الطلب</title>
+<title>KADRY Store - إتمام الطلب</title>
+<meta name="robots" content="noindex, nofollow"/>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-<style>* { font-family:'Cairo',sans-serif; }</style>
-</head>
-<body class="bg-gray-50 text-black" x-data="checkoutPage()" x-init="init()">
+<style>
+  *, html, body, input, textarea, select, button, span, p, div, h1, h2, a {
+    font-family: 'Cairo', sans-serif !important;
+  }
+  .fas, .far, .fab, i {
+    font-family: 'Font Awesome 5 Free' !important;
+    font-weight: 900 !important;
+  }
+  /* ── Success Page Animations ── */
+  @keyframes popIn {
+    0%  { transform: scale(0.5); opacity: 0; }
+    80% { transform: scale(1.08); }
+    100%{ transform: scale(1);   opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { transform: translateY(24px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  @keyframes pulse-ring {
+    0%   { box-shadow: 0 0 0 0   rgba(0,0,0,.35); }
+    70%  { box-shadow: 0 0 0 18px rgba(0,0,0,0);  }
+    100% { box-shadow: 0 0 0 0   rgba(0,0,0,0);   }
+  }
+  .anim-pop  { animation: popIn   .5s cubic-bezier(.17,.67,.42,1.25) forwards; }
+  .anim-up-1 { animation: slideUp .45s .15s ease both; }
+  .anim-up-2 { animation: slideUp .45s .30s ease both; }
+  .anim-up-3 { animation: slideUp .45s .45s ease both; }
+  .anim-up-4 { animation: slideUp .45s .60s ease both; }
+  .anim-up-5 { animation: slideUp .45s .75s ease both; }
+  .check-ring { animation: pulse-ring 1.6s .5s ease-out; }
 
+  /* Upload drag zone */
+  .upload-zone {
+    border: 2px dashed #d1d5db;
+    border-radius: 1rem;
+    transition: border-color .2s, background .2s;
+  }
+  .upload-zone:hover { border-color: #111; background: #f9f9f9; }
+
+  /* Copy btn feedback */
+  .copy-done { color: #000 !important; }
+
+  /* Payment method card */
+  .pay-card {
+    border-radius: 1rem;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .pay-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.08); }
+</style>
+</head>
+<body class="bg-white text-black" x-data="checkoutPage()" x-init="init()">
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  NAVBAR                                              -->
+<!-- ══════════════════════════════════════════════════════ -->
 <nav class="bg-white border-b shadow-sm sticky top-0 z-50">
   <div class="max-w-5xl mx-auto px-4 flex items-center justify-between h-16">
-    <a href="index.html" class="bg-black rounded-lg px-3 py-1 flex items-center gap-1">
-      <span class="text-green-400 font-black text-xl">M</span>
-      <span class="text-white font-black text-lg tracking-widest">ONSTERS</span>
-    </a>
+    <a href="index.html" class="text-black font-black text-xl tracking-widest">KADRY</a>
     <div class="flex items-center gap-2 text-sm text-gray-500 font-bold">
-      <span class="text-green-500">السلة</span> <i class="fas fa-chevron-left text-xs"></i>
-      <span class="text-black">الطلب</span> <i class="fas fa-chevron-left text-xs"></i>
-      <span>التأكيد</span>
+      <span class="text-black">السلة</span>
+      <i class="fas fa-chevron-left text-xs"></i>
+      <span class="text-black">الطلب</span>
+      <i class="fas fa-chevron-left text-xs"></i>
+      <span class="text-gray-500">التأكيد</span>
     </div>
   </div>
 </nav>
 
-<div class="max-w-5xl mx-auto px-4 py-10">
-  <h1 class="text-3xl font-black mb-8"><i class="fas fa-map-marker-alt text-green-500 ml-2"></i>بيانات التوصيل</h1>
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  CHECKOUT FORM (hidden after order)                  -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div x-show="!orderDone" class="max-w-5xl mx-auto px-4 py-10">
+  <h1 class="text-3xl font-black mb-8">
+    <i class="fas fa-map-marker-alt text-black ml-2"></i>بيانات التوصيل
+  </h1>
 
   <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
     <!-- Form -->
     <div class="lg:col-span-3 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-      <!-- Name -->
+
       <div class="mb-5">
         <label class="font-bold text-sm mb-2 block">الاسم الكامل *</label>
         <input x-model="form.name" type="text" placeholder="محمد أحمد"
-          class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-green-400 text-sm"/>
+          class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black text-sm"/>
         <p x-show="errors.name" class="text-red-500 text-xs mt-1">الاسم مطلوب</p>
       </div>
-      <!-- Phone -->
+
       <div class="mb-5">
         <label class="font-bold text-sm mb-2 block">رقم الموبايل *</label>
         <input x-model="form.phone" type="tel" placeholder="01xxxxxxxxx"
-          class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-green-400 text-sm" dir="ltr"/>
+          class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black text-sm" dir="ltr"/>
         <p x-show="errors.phone" class="text-red-500 text-xs mt-1">رقم الهاتف مطلوب</p>
       </div>
-      <!-- Governorate -->
+
       <div class="mb-5">
         <label class="font-bold text-sm mb-2 block">المحافظة *</label>
-        <select x-model="form.gov" class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-green-400 text-sm bg-white">
+        <select x-model="form.gov"
+          class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black text-sm bg-white">
           <option value="">اختر المحافظة</option>
           <template x-for="g in govs"><option :value="g" x-text="g"></option></template>
         </select>
         <p x-show="errors.gov" class="text-red-500 text-xs mt-1">المحافظة مطلوبة</p>
+        <p x-show="form.gov" class="text-black text-xs mt-2 font-bold">
+          <i class="fas fa-truck ml-1"></i>
+          تكلفة الشحن: EGP <span x-text="shippingCost"></span>
+        </p>
       </div>
-      <!-- Address -->
+
       <div class="mb-5">
         <label class="font-bold text-sm mb-2 block">العنوان بالتفصيل *</label>
         <textarea x-model="form.address" rows="3" placeholder="الشارع، الحي، المدينة..."
-          class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-green-400 text-sm resize-none"></textarea>
+          class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black text-sm resize-none"></textarea>
         <p x-show="errors.address" class="text-red-500 text-xs mt-1">العنوان مطلوب</p>
       </div>
-      <!-- Notes -->
+
       <div class="mb-6">
         <label class="font-bold text-sm mb-2 block">ملاحظات (اختياري)</label>
         <textarea x-model="form.notes" rows="2" placeholder="أي ملاحظات للمندوب..."
-          class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-green-400 text-sm resize-none"></textarea>
+          class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black text-sm resize-none"></textarea>
       </div>
 
-      <!-- Payment -->
       <div class="mb-6">
         <p class="font-black mb-3">طريقة الدفع:</p>
         <div class="flex gap-3">
           <label class="flex-1 border-2 rounded-xl p-3 cursor-pointer flex items-center gap-2 transition"
-            :class="form.payment==='cod' ? 'border-green-500 bg-green-50' : 'border-gray-200'">
+            :class="form.payment==='cod' ? 'border-black bg-black/5' : 'border-gray-200'">
             <input type="radio" x-model="form.payment" value="cod" class="hidden"/>
-            <i class="fas fa-money-bill text-green-500 text-xl"></i>
+            <i class="fas fa-money-bill text-black text-xl"></i>
             <span class="font-bold text-sm">الدفع عند الاستلام</span>
           </label>
           <label class="flex-1 border-2 rounded-xl p-3 cursor-pointer flex items-center gap-2 transition"
-            :class="form.payment==='whatsapp' ? 'border-green-500 bg-green-50' : 'border-gray-200'">
-            <input type="radio" x-model="form.payment" value="whatsapp" class="hidden"/>
-            <i class="fab fa-whatsapp text-green-500 text-xl"></i>
+            :class="form.payment==='transfer' ? 'border-black bg-black/5' : 'border-gray-200'">
+            <input type="radio" x-model="form.payment" value="transfer" class="hidden"/>
+            <i class="fas fa-mobile-alt text-black text-xl"></i>
             <span class="font-bold text-sm">تحويل إلكتروني</span>
           </label>
         </div>
       </div>
 
-      <button @click="submitOrder()"
-        class="w-full bg-green-500 text-black font-black py-4 rounded-2xl hover:bg-green-600 transition text-xl flex items-center justify-center gap-2">
-        <i class="fab fa-whatsapp text-2xl"></i> تأكيد الطلب عبر واتساب
+      <button @click="submitOrder()" :disabled="submitting"
+        class="w-full bg-black text-white font-black py-4 rounded-2xl hover:bg-gray-800 transition text-xl flex items-center justify-center gap-2 disabled:opacity-60">
+        <span x-show="!submitting"><i class="fas fa-check-circle ml-2"></i>تأكيد الطلب</span>
+        <span x-show="submitting"><i class="fas fa-spinner fa-spin ml-2"></i>جارٍ الإرسال...</span>
       </button>
-      <p class="text-center text-xs text-gray-400 mt-3">سيتم إرسال تفاصيل طلبك عبر واتساب لتأكيده</p>
+
+      <p x-show="submitError" class="text-red-500 text-sm mt-3 text-center font-bold" x-text="submitError"></p>
     </div>
 
-    <!-- Order summary -->
+    <!-- Order Summary Sidebar -->
     <div class="lg:col-span-2">
       <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 sticky top-24">
         <h2 class="font-black text-lg mb-4 border-b pb-3">ملخص الطلب</h2>
         <div class="space-y-3 max-h-72 overflow-y-auto mb-4">
           <template x-for="item in cart" :key="item._key||item.id">
             <div class="flex items-center gap-3">
-              <img :src="item.image_url||'https://placehold.co/50x50/111/22c55e?text=M'" class="w-12 h-12 rounded-xl object-cover flex-shrink-0"/>
+              <img :src="item.image_url||'https://placehold.co/50x50/111/22c55e?text=M'"
+                class="w-12 h-12 rounded-xl object-cover flex-shrink-0"/>
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-bold truncate" x-text="item.name"></p>
-                <p class="text-xs text-gray-400" x-text="(item.size?'مقاس '+item.size+' ':'')+('× '+(item.qty||1))"></p>
+                <p class="text-xs text-gray-400"
+                  x-text="(item.size?'مقاس '+item.size+' ':'')+(item.color?'| لون '+item.color+' ':'')+'× '+(item.qty||1)"></p>
               </div>
-              <span class="font-black text-sm" x-text="'EGP '+((item.finalPrice||item.price)*(item.qty||1))"></span>
+              <span class="font-black text-sm"
+                x-text="'EGP '+((item.finalPrice||item.price)*(item.qty||1))"></span>
             </div>
           </template>
         </div>
         <div class="border-t pt-4 space-y-2 text-sm">
-          <div class="flex justify-between"><span class="text-gray-500">المجموع</span><span class="font-bold" x-text="'EGP '+subtotal"></span></div>
-          <div x-show="discount>0" class="flex justify-between text-green-600"><span>خصم</span><span x-text="'- EGP '+discount"></span></div>
-          <div class="flex justify-between"><span class="text-gray-500">الشحن</span><span class="text-green-600 font-bold">مجاني</span></div>
+          <div class="flex justify-between">
+            <span class="text-gray-500">المجموع</span>
+            <span class="font-bold" x-text="'EGP '+subtotal"></span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500">الشحن</span>
+            <span class="font-bold" x-text="form.gov ? ('EGP '+shippingCost) : 'حسب المحافظة'"></span>
+          </div>
           <div class="flex justify-between text-lg font-black border-t pt-2">
             <span>الإجمالي</span>
-            <span class="text-green-600" x-text="'EGP '+(subtotal-discount)"></span>
+            <span class="text-black" x-text="'EGP '+(subtotal+shippingCost)"></span>
           </div>
         </div>
       </div>
@@ -125,44 +195,418 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  SUCCESS PAGE                                        -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div x-show="orderDone" x-transition class="max-w-2xl mx-auto px-4 py-10 pb-20">
+
+  <!-- ── Header Check ── -->
+  <div class="text-center mb-7 anim-pop">
+    <div class="check-ring w-24 h-24 bg-black rounded-full flex items-center justify-center mx-auto mb-5 shadow-lg">
+      <i class="fas fa-check text-white text-4xl"></i>
+    </div>
+    <h2 class="text-3xl font-black mb-1">تم استلام طلبك! 🎉</h2>
+    <p class="text-gray-400 text-sm">رقم الطلب</p>
+    <div class="inline-flex items-center gap-2 bg-gray-100 rounded-2xl px-6 py-2 mt-1">
+      <i class="fas fa-hashtag text-black text-sm"></i>
+      <span class="font-black text-xl text-black" x-text="orderNumber"></span>
+    </div>
+  </div>
+
+  <!-- ── Order Status Notice ── -->
+  <div class="anim-up-1 bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-4">
+    <div class="flex items-start gap-3">
+      <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+        <i class="fas fa-exclamation-circle text-amber-500 text-lg"></i>
+      </div>
+      <div class="flex-1">
+        <p class="font-black text-amber-800 mb-3 text-base">معلومات هامة عن طلبك</p>
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-sm text-amber-700">
+            <span class="w-6 h-6 bg-black rounded-full flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-check text-white text-xs"></i>
+            </span>
+            <span class="font-bold">تم حجز طلبك بالفعل وهو محجوز باسمك</span>
+          </div>
+          <div class="flex items-center gap-2 text-sm text-amber-700">
+            <span class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-box text-white text-xs"></i>
+            </span>
+            <span class="font-bold">جارٍ تجهيز الطلب للشحن الآن</span>
+          </div>
+          <div class="flex items-center gap-2 text-sm text-amber-700">
+            <span class="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-truck text-white text-xs"></i>
+            </span>
+            <span class="font-bold">شركة الشحن تشترط سداد رسوم الشحن مقدماً</span>
+          </div>
+          <div class="mt-3 bg-amber-100 rounded-xl px-4 py-3 flex items-center justify-between">
+            <span class="text-amber-800 font-bold text-sm">رسوم الشحن المستحقة:</span>
+            <span class="font-black text-amber-900 text-lg">
+              EGP <span x-text="savedShipping"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Payment Methods ── -->
+  <div class="anim-up-2 bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4">
+    <div class="flex items-center gap-2 mb-1">
+      <div class="w-9 h-9 bg-black/5 rounded-xl flex items-center justify-center">
+        <i class="fas fa-credit-card text-black"></i>
+      </div>
+      <h3 class="font-black text-lg">وسائل الدفع المتاحة</h3>
+    </div>
+    <p class="text-gray-400 text-sm mb-4 mr-11">حوّل رسوم الشحن عبر أي من الأرقام التالية ثم ارفع صورة الإيصال:</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+      <!-- Vodafone Cash -->
+      <div class="pay-card bg-red-50 border border-red-100 p-4">
+        <div class="flex items-center gap-3 mb-3">
+          <img src="vs.jpeg" alt="Vodafone Cash"
+            class="w-14 h-14 rounded-xl object-cover border border-red-200 bg-white"
+            onerror="this.src='https://placehold.co/56x56/ef4444/ffffff?text=VC'"/>
+          <div>
+            <p class="font-black text-red-700 text-base">Vodafone Cash</p>
+            <p class="text-gray-400 text-xs">محفظة فودافون كاش</p>
+          </div>
+        </div>
+        <div class="flex items-center justify-between bg-white rounded-xl px-3 py-2.5 border border-red-100">
+          <span class="font-black text-gray-800 text-base tracking-wide" dir="ltr">01061927815</span>
+          <button
+            @click="copyToClipboard('01061927815','vc')"
+            class="flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-lg transition"
+            :class="copiedPhone==='vc' ? 'bg-black/5 text-black' : 'bg-red-100 text-red-700 hover:bg-red-200'">
+            <i class="fas" :class="copiedPhone==='vc' ? 'fa-check' : 'fa-copy'"></i>
+            <span x-text="copiedPhone==='vc' ? 'تم النسخ!' : 'نسخ'"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- InstaPay -->
+      <div class="pay-card bg-blue-50 border border-blue-100 p-4">
+        <div class="flex items-center gap-3 mb-3">
+          <img src="en.jpeg" alt="InstaPay"
+            class="w-14 h-14 rounded-xl object-cover border border-blue-200 bg-white"
+            onerror="this.src='https://placehold.co/56x56/3b82f6/ffffff?text=IP'"/>
+          <div>
+            <p class="font-black text-blue-700 text-base">InstaPay</p>
+            <p class="text-gray-400 text-xs">انستاباي</p>
+          </div>
+        </div>
+        <div class="flex items-center justify-between bg-white rounded-xl px-3 py-2.5 border border-blue-100">
+          <span class="font-black text-gray-800 text-base tracking-wide" dir="ltr">01550434880</span>
+          <button
+            @click="copyToClipboard('01550434880','insta')"
+            class="flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-lg transition"
+            :class="copiedPhone==='insta' ? 'bg-black/5 text-black' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'">
+            <i class="fas" :class="copiedPhone==='insta' ? 'fa-check' : 'fa-copy'"></i>
+            <span x-text="copiedPhone==='insta' ? 'تم النسخ!' : 'نسخ'"></span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Receipt Upload ── -->
+  <div class="anim-up-3 bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4">
+    <div class="flex items-center gap-2 mb-1">
+      <div class="w-9 h-9 bg-purple-100 rounded-xl flex items-center justify-center">
+        <i class="fas fa-image text-purple-600"></i>
+      </div>
+      <h3 class="font-black text-lg">إرسال صورة التحويل</h3>
+      <span class="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">اختياري</span>
+    </div>
+    <p class="text-gray-400 text-sm mb-4 mr-11">ارفع إيصال التحويل لتسريع تجهيز وشحن طلبك</p>
+
+    <!-- Before upload -->
+    <div x-show="!paymentProof">
+      <label class="block cursor-pointer">
+        <div class="upload-zone p-6 text-center" :class="uploadingProof ? 'opacity-50 cursor-not-allowed' : ''">
+          <div x-show="!uploadingProof">
+            <i class="fas fa-cloud-upload-alt text-4xl text-gray-300 mb-3 block"></i>
+            <p class="font-black text-gray-600 mb-1">اضغط هنا لرفع صورة الإيصال</p>
+            <p class="text-xs text-gray-400">JPG, PNG, GIF — حتى 10 MB</p>
+          </div>
+          <div x-show="uploadingProof" class="py-2">
+            <i class="fas fa-spinner fa-spin text-3xl text-black mb-2 block"></i>
+            <p class="font-bold text-gray-600 text-sm">جارٍ رفع الصورة...</p>
+          </div>
+          <input type="file" accept="image/*" class="hidden"
+            @change="uploadReceipt($event)"
+            :disabled="uploadingProof"/>
+        </div>
+      </label>
+      <p x-show="uploadError"
+         class="mt-2 text-red-500 text-xs font-bold flex items-center gap-1">
+        <i class="fas fa-exclamation-circle"></i>
+        <span x-text="uploadError"></span>
+      </p>
+    </div>
+
+    <!-- After upload -->
+    <div x-show="paymentProof" class="text-center">
+      <div class="bg-black/5 border border-black/10 rounded-2xl p-5">
+        <div class="w-14 h-14 bg-black/10 rounded-full flex items-center justify-center mx-auto mb-3">
+          <i class="fas fa-check-circle text-black text-3xl"></i>
+        </div>
+        <p class="font-black text-black text-base mb-1">تم استلام صورة التحويل بنجاح!</p>
+        <p class="text-gray-400 text-xs mb-4">جارٍ تجهيز طلبك للشحن</p>
+        <img :src="paymentProof"
+          class="w-36 h-36 object-cover rounded-xl mx-auto border-2 border-black/10 shadow-sm"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Quick Summary ── -->
+  <div class="anim-up-4 bg-gray-900 text-white rounded-2xl p-5 mb-5">
+    <h3 class="font-black text-sm mb-3 text-gray-300 uppercase tracking-widest">ملخص الطلب</h3>
+    <div class="space-y-1.5 text-sm border-b border-gray-700 pb-3 mb-3">
+      <div class="flex justify-between">
+        <span class="text-gray-400">الاسم</span>
+        <span class="font-bold" x-text="form.name"></span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-400">الهاتف</span>
+        <span class="font-bold" dir="ltr" x-text="form.phone"></span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-400">المحافظة</span>
+        <span class="font-bold" x-text="form.gov"></span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-400">طريقة الدفع</span>
+        <span class="font-bold" x-text="form.payment==='cod' ? 'عند الاستلام' : 'تحويل إلكتروني'"></span>
+      </div>
+    </div>
+    <div class="flex justify-between items-center">
+      <span class="text-gray-400 text-sm">إجمالي رسوم الشحن</span>
+      <span class="font-black text-black text-xl">EGP <span x-text="savedShipping"></span></span>
+    </div>
+  </div>
+
+  <!-- ── Return Button ── -->
+  <div class="anim-up-5">
+    <a href="index.html"
+      class="flex items-center justify-center gap-2 w-full bg-black text-white font-black py-4 rounded-2xl hover:bg-gray-800 transition text-lg">
+      <i class="fas fa-home"></i>
+      العودة للمتجر
+    </a>
+    <p class="text-center text-gray-400 text-xs mt-3">
+      <i class="fas fa-headset ml-1 text-black"></i>
+      سيتواصل معك فريقنا قريباً لتأكيد الطلب
+    </p>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  SCRIPT                                              -->
+<!-- ══════════════════════════════════════════════════════ -->
 <script>
+/* ── Shipping Rates (updated per request) ── */
+const SHIPPING_RATES = {
+  'الإسكندرية': 90,
+  'أسوان': 155,
+  'أسيوط': 105,
+  'البحيرة': 90,
+  'بني سويف': 105,
+  'القاهرة': 70,
+  'الدقهلية': 90,
+  'دمياط': 90,
+  'الفيوم': 105,
+  'الغربية': 90,
+  'الجيزة': 70,
+  'البحر الأحمر': 155,
+  'الإسماعيلية': 95,
+  'كفر الشيخ': 90,
+  'الأقصر': 155,
+  'مطروح': 155,
+  'المنيا': 105,
+  'المنوفية': 90,
+  'الوادي الجديد': 155,
+  'بورسعيد': 95,
+  'القليوبية': 90,
+  'قنا': 155,
+  'الشرقية': 90,
+  'سوهاج': 105,
+  'جنوب سيناء': 155,
+  'السويس': 95
+};
+
+/* ── Submit structured order to server ── */
+async function placeOrder(payload) {
+  const resp = await fetch('/api/checkout', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(payload),
+  });
+  return resp.json();
+}
+
+/* ── Alpine Component ── */
 function checkoutPage() {
   return {
+    /* ── State ── */
     cart: [],
-    discount: 0,
     form: { name:'', phone:'', gov:'', address:'', notes:'', payment:'cod' },
     errors: { name:false, phone:false, gov:false, address:false },
-    govs: ['القاهرة','الجيزة','الإسكندرية','الدقهلية','البحر الأحمر','البحيرة','الفيوم','الغربية','الإسماعيلية','المنوفية','المنيا','القليوبية','الوادي الجديد','السويس','أسوان','أسيوط','بني سويف','بورسعيد','دمياط','الشرقية','جنوب سيناء','كفر الشيخ','مطروح','الأقصر','قنا','شمال سيناء','سوهاج'],
+    govs: Object.keys(SHIPPING_RATES),
 
+    submitting:  false,
+    submitError: '',
+    orderDone:   false,
+    orderNumber: '',
+
+    /* success-page state */
+    savedShipping:  0,
+    paymentProof:   null,
+    uploadingProof: false,
+    uploadError:    '',
+    copiedPhone:    '',
+
+    /* ── Init ── */
     init() {
-      try { this.cart = JSON.parse(localStorage.getItem('monsters_cart')||'[]'); } catch {}
-      this.discount = parseInt(localStorage.getItem('monsters_discount')||'0');
+      try { this.cart = JSON.parse(localStorage.getItem('kadry_cart')||'[]'); } catch {}
+      if (!this.cart.length) {
+        this.cart = [{
+          id:'test_item', name:'منتج تجريبي لموقع كادري',
+          price:500, qty:1, size:'XL', color:'أسود'
+        }];
+      }
     },
 
+    /* ── Computed ── */
     get subtotal() {
-      return this.cart.reduce((s,i)=>s+(i.finalPrice||i.price)*(i.qty||1),0);
+      return this.cart.reduce((s,i) => s + (i.finalPrice||i.price)*(i.qty||1), 0);
+    },
+    get shippingCost() {
+      return SHIPPING_RATES[this.form.gov] || 0;
     },
 
+    /* ── Validate ── */
     validate() {
-      this.errors.name = !this.form.name.trim();
-      this.errors.phone = !this.form.phone.trim();
-      this.errors.gov = !this.form.gov;
+      this.errors.name    = !this.form.name.trim();
+      this.errors.phone   = !this.form.phone.trim();
+      this.errors.gov     = !this.form.gov;
       this.errors.address = !this.form.address.trim();
       return !Object.values(this.errors).some(Boolean);
     },
 
-    submitOrder() {
+    /* ── Copy to Clipboard ── */
+    copyToClipboard(text, key) {
+      const done = () => {
+        this.copiedPhone = key;
+        setTimeout(() => this.copiedPhone = '', 2200);
+      };
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(done).catch(() => {
+          const el = Object.assign(document.createElement('textarea'), { value: text });
+          document.body.appendChild(el); el.select();
+          document.execCommand('copy'); document.body.removeChild(el);
+          done();
+        });
+      } else {
+        const el = Object.assign(document.createElement('textarea'), { value: text });
+        document.body.appendChild(el); el.select();
+        document.execCommand('copy'); document.body.removeChild(el);
+        done();
+      }
+    },
+
+    /* ── Upload Receipt ── */
+    async uploadReceipt(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      this.uploadingProof = true;
+      this.uploadError    = '';
+
+      try {
+        /* Convert to base64 */
+        const base64 = await new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload  = () => res(r.result);
+          r.onerror = rej;
+          r.readAsDataURL(file);
+        });
+
+        /* Upload via public receipt endpoint (no admin auth required) */
+        const resp   = await fetch('/api/upload-receipt', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ data: base64, fileName: file.name })
+        });
+        const result = await resp.json();
+        if (!result.success) throw new Error(result.error || 'فشل الرفع');
+
+        this.paymentProof = result.url;
+
+      } catch (err) {
+        this.uploadError = 'فشل رفع الصورة: ' + (err.message || 'خطأ غير متوقع');
+        console.error('[uploadReceipt]', err);
+      } finally {
+        this.uploadingProof = false;
+        /* Reset file input so user can re-upload if needed */
+        event.target.value = '';
+      }
+    },
+
+    /* ── Submit Order ── */
+    async submitOrder() {
       if (!this.validate()) return;
-      const items = this.cart.map(i=>`• ${i.name} (مقاس: ${i.size||'-'}, لون: ${i.color||'-'}) × ${i.qty||1} = EGP ${(i.finalPrice||i.price)*(i.qty||1)}`).join('\n');
-      const total = this.subtotal - this.discount;
-      const msg = `🛒 *طلب جديد من MONSTERS*\n\n👤 الاسم: ${this.form.name}\n📱 الموبايل: ${this.form.phone}\n📍 المحافظة: ${this.form.gov}\n🏠 العنوان: ${this.form.address}\n💳 الدفع: ${this.form.payment==='cod'?'عند الاستلام':'تحويل إلكتروني'}\n${this.form.notes?'📝 ملاحظات: '+this.form.notes+'\n':''}\n📦 *المنتجات:*\n${items}\n\n💰 الإجمالي: EGP ${total}\n${this.discount?'🎁 خصم: EGP '+this.discount+'\n':''}\n✅ طلب عبر موقع MONSTERS Store`;
-      const url = `https://wa.me/201050805608?text=${encodeURIComponent(msg)}`;
-      localStorage.removeItem('monsters_cart');
-      localStorage.removeItem('monsters_discount');
-      localStorage.setItem('monsters_last_order', JSON.stringify({...this.form, total, items:this.cart}));
-      window.location.href = url;
+
+      this.submitting    = true;
+      this.submitError   = '';
+      this.savedShipping = this.shippingCost;
+
+      /* Build structured items payload — server will re-fetch authoritative prices */
+      const structuredItems = this.cart.map(i => ({
+        productId: i.id,
+        size:      i.size  || null,
+        color:     i.color || null,
+        qty:       i.qty   || 1,
+      }));
+
+      try {
+        const result = await placeOrder({
+          customerName:    this.form.name.trim(),
+          customerPhone:   this.form.phone.trim(),
+          governorate:     this.form.gov,
+          address:         this.form.address.trim(),
+          notes:           this.form.notes.trim() || '',
+          paymentMethod:   this.form.payment,
+          items:           structuredItems,
+          paymentProofUrl: this.paymentProof || null,
+        });
+
+        if (!result.success) {
+          this.submitError = result.error || 'فشل إرسال الطلب. حاول مرة أخرى.';
+          this.submitting  = false;
+          return;
+        }
+
+        /* Use server-returned values */
+        this.orderNumber  = result.orderNumber;
+        this.savedShipping = this.shippingCost;
+
+        localStorage.removeItem('kadry_cart');
+        this.orderDone  = true;
+        this.submitting = false;
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      } catch (err) {
+        console.error('[submitOrder]', err);
+        this.submitError = 'خطأ في الاتصال. حاول مرة أخرى.';
+        this.submitting  = false;
+      }
     }
-  }
+  };
 }
 </script>
 </body>
